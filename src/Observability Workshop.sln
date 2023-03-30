@@ -5,9 +5,11 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GasyTek.ApiGateway", "GasyTek.ApiGateway\GasyTek.ApiGateway.csproj", "{2CD94A31-A0BC-4B45-A1D1-A9F7471ADF15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GasyTek.ProductService", "GasyTek.ProductService\GasyTek.ProductService.csproj", "{556B5505-ABC9-4411-BA94-35D46BF88700}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GasyTek.ProductService", "GasyTek.ProductService\GasyTek.ProductService.csproj", "{556B5505-ABC9-4411-BA94-35D46BF88700}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GasyTek.CartService", "GasyTek.CartService\GasyTek.CartService.csproj", "{34281457-81AB-49B1-8559-2CA06AC659DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GasyTek.CartService", "GasyTek.CartService\GasyTek.CartService.csproj", "{34281457-81AB-49B1-8559-2CA06AC659DF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{C316DF16-FEF7-4B83-BAFD-EC4D3618B3EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +32,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{556B5505-ABC9-4411-BA94-35D46BF88700} = {C316DF16-FEF7-4B83-BAFD-EC4D3618B3EB}
+		{34281457-81AB-49B1-8559-2CA06AC659DF} = {C316DF16-FEF7-4B83-BAFD-EC4D3618B3EB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99F10BB0-502E-46FA-BCE0-0F571C139589}
