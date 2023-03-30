@@ -34,5 +34,22 @@ namespace GasyTek.ApiGateway.Controllers
                 }
             };
         }
+
+        [HttpGet("/products/{id:int}")]
+        public async Task<IActionResult> GetProduct(int id)
+        {
+            using (var response = await this.httpClient.GetAsync($"{ProductServiceUrl}/products/{id}"))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    var product = await response.Content.ReadFromJsonAsync<ProductData>();
+                    return this.Ok(product);
+                }
+                else
+                {
+                    return this.StatusCode((int)response.StatusCode);
+                }
+            };
+        }
     }
 }

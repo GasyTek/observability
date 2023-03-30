@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +45,12 @@ dbContext.Database.Migrate();
 app.MapGet("/products", (ProductsDbContext dbContext) =>
 {
     return dbContext.Products.ToListAsync();
-})
-.WithName("GetProductList");
+});
+
+app.MapGet("/products/{id:int}", object ([FromRoute] int id, [FromServices] ProductsDbContext dbContext) =>
+    {
+        var product = dbContext.Products.SingleOrDefault(it => it.Id == id);
+        return product is null ? Results.NotFound() : product;
+    });
 
 app.Run();
