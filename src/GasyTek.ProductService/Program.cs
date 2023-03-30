@@ -1,5 +1,8 @@
+using GasyTek.ProductService.Core;
 using GasyTek.ProductService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,22 @@ builder.Services.AddSwaggerGen();
 
 // EF Core
 builder.Services.AddDbContext<ProductsDbContext>();
+
+// OpenTelemetry
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracerProviderBuilder =>
+        tracerProviderBuilder
+            .AddSource(DiagnosticsConfig.ActivitySource.Name)
+            .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
+            .AddAspNetCoreInstrumentation()
+            .AddConsoleExporter()
+            .AddOtlpExporter());
+//.WithMetrics(metricsProviderBuilder =>
+//    metricsProviderBuilder
+//        .ConfigureResource(resource => resource
+//            .AddService(DiagnosticsConfig.ServiceName))
+//        .AddAspNetCoreInstrumentation()
+//        .AddConsoleExporter());
 
 var app = builder.Build();
 

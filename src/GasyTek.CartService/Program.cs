@@ -1,3 +1,7 @@
+using GasyTek.CartService.Core;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,14 +9,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// OpenTelemetry
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracerProviderBuilder =>
+        tracerProviderBuilder
+            .AddSource(DiagnosticsConfig.ActivitySource.Name)
+            .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
+            .AddAspNetCoreInstrumentation()
+            .AddConsoleExporter()
+            .AddOtlpExporter());
+//.WithMetrics(metricsProviderBuilder =>
+//    metricsProviderBuilder
+//        .ConfigureResource(resource => resource
+//            .AddService(DiagnosticsConfig.ServiceName))
+//        .AddAspNetCoreInstrumentation()
+//        .AddConsoleExporter());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 var summaries = new[]
 {
