@@ -6,6 +6,8 @@ namespace GasyTek.ProductService.Core
     {
         public const string ServiceName = "ProductService";
 
+        public const string DbServiceName = "ProductServiceDatabase";
+
         public static ActivitySource ActivitySource = new ActivitySource(ServiceName);
     }
 }

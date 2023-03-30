@@ -1,6 +1,7 @@
 using GasyTek.ProductService.Core;
 using GasyTek.ProductService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -18,6 +19,7 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
         tracerProviderBuilder
             .AddSource(DiagnosticsConfig.ActivitySource.Name)
+            .AddNpgsql()
             .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
             .AddAspNetCoreInstrumentation()
             .AddConsoleExporter()
