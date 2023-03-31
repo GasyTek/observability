@@ -60,6 +60,13 @@ services:
       - "16686:16686"
       - "14268"
       - "14250"
+
+  # Redis
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
 volumes:
   postgres-db:
     driver: local

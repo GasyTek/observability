@@ -5,6 +5,9 @@ using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using GasyTek.ProductService.Domain;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,14 @@ builder.Services.AddSwaggerGen();
 // EF Core
 builder.Services.AddDbContext<ProductsDbContext>();
 
+// Redis
+var redisConnection = ConnectionMultiplexer.Connect("localhost:6379");
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.InstanceName = "RedisCache";
+    options.ConnectionMultiplexerFactory = () => Task.FromResult((IConnectionMultiplexer)redisConnection);
+});
+
 // OpenTelemetry
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
@@ -23,6 +34,7 @@ builder.Services.AddOpenTelemetry()
             .AddNpgsql()
             .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
             .AddAspNetCoreInstrumentation()
+            .AddRedisInstrumentation(redisConnection, options => options.SetVerboseDatabaseStatements = true)
             .AddConsoleExporter()
             .AddOtlpExporter());
 //.WithMetrics(metricsProviderBuilder =>
@@ -31,6 +43,8 @@ builder.Services.AddOpenTelemetry()
 //            .AddService(DiagnosticsConfig.ServiceName))
 //        .AddAspNetCoreInstrumentation()
 //        .AddConsoleExporter());
+
+
 
 var app = builder.Build();
 
@@ -47,10 +61,24 @@ app.MapGet("/products", (ProductsDbContext dbContext) =>
     return dbContext.Products.ToListAsync();
 });
 
-app.MapGet("/products/{id:int}", object ([FromRoute] int id, [FromServices] ProductsDbContext dbContext) =>
+app.MapGet("/products/{id:int}", object ([FromRoute] int id, [FromServices] ProductsDbContext dbContext, [FromServices] IDistributedCache cache) =>
     {
-        var product = dbContext.Products.SingleOrDefault(it => it.Id == id);
-        return product is null ? Results.NotFound() : product;
+        var cacheKey = $"Product:{id}";
+        var product = cache.Get<Product>(cacheKey);
+        if (product is null)
+        {
+            // Retrieve product from DB
+            product = dbContext.Products.SingleOrDefault(it => it.Id == id);
+
+            // Add product into cache
+            cache.Set(cacheKey, product);
+
+            return product is null ? Results.NotFound() : product;
+        }
+        else
+        {
+            return product;
+        }
     });
 
 app.Run();
