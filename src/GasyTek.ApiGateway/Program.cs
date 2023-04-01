@@ -21,13 +21,14 @@ builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
             .AddAspNetCoreInstrumentation()
             .AddConsoleExporter()
+            .AddOtlpExporter())
+    .WithMetrics(metricsProviderBuilder =>
+        metricsProviderBuilder
+            .ConfigureResource(resource => resource
+                .AddService(DiagnosticsConfig.ServiceName))
+            .AddAspNetCoreInstrumentation()
+            .AddConsoleExporter()
             .AddOtlpExporter());
-//.WithMetrics(metricsProviderBuilder =>
-//    metricsProviderBuilder
-//        .ConfigureResource(resource => resource
-//            .AddService(DiagnosticsConfig.ServiceName))
-//        .AddAspNetCoreInstrumentation()
-//        .AddConsoleExporter());
 
 var app = builder.Build();
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using GasyTek.ProductService.Domain;
@@ -36,15 +37,14 @@ builder.Services.AddOpenTelemetry()
             .AddAspNetCoreInstrumentation()
             .AddRedisInstrumentation(redisConnection, options => options.SetVerboseDatabaseStatements = true)
             .AddConsoleExporter()
+            .AddOtlpExporter())
+    .WithMetrics(metricsProviderBuilder =>
+        metricsProviderBuilder
+            .ConfigureResource(resource => resource
+                .AddService(DiagnosticsConfig.ServiceName))
+            .AddAspNetCoreInstrumentation()
+            .AddConsoleExporter()
             .AddOtlpExporter());
-//.WithMetrics(metricsProviderBuilder =>
-//    metricsProviderBuilder
-//        .ConfigureResource(resource => resource
-//            .AddService(DiagnosticsConfig.ServiceName))
-//        .AddAspNetCoreInstrumentation()
-//        .AddConsoleExporter());
-
-
 
 var app = builder.Build();
 
