@@ -118,7 +118,15 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-                                 
+
+  # Grafana
+  grafana:  
+    container_name: grafana
+    image: grafana/grafana
+    restart: always    
+    ports:
+      - 3000:3000
+                                       
 volumes:
   postgres-db:
     driver: local
