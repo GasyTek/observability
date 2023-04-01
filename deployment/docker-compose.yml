@@ -4,6 +4,7 @@ services:
   
   # Postgres
   postgres:
+    container_name: postgres
     image: postgres:14.1-alpine
     restart: always
     environment:
@@ -16,6 +17,7 @@ services:
 
   # Mongo DB
   mongo:
+    container_name: mongo
     image: mongo
     restart: always
     environment:
@@ -26,6 +28,7 @@ services:
 
   # Mongo Express
   mongo-express:
+    container_name: mongo-express
     image: mongo-express
     restart: always
     ports:
@@ -37,6 +40,7 @@ services:
   
   # OpenTelemetry collector
   otel-collector:
+    container_name: otel-collector
     image: otel/opentelemetry-collector
     command: [--config=/etc/otel-collector-config.yaml]
     volumes:      
@@ -51,9 +55,11 @@ services:
       - 55679:55679 # zpages extension
     depends_on:
       - jaeger
+      - prometheus
       
   # Jaeger
   jaeger:
+    container_name: jaeger
     image: jaegertracing/all-in-one:latest
     restart: always
     ports:
@@ -63,6 +69,7 @@ services:
 
   # Redis
   redis:
+    container_name: redis
     image: redis
     restart: always
     ports:
@@ -70,8 +77,8 @@ services:
 
   # Elasticsearch
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
     container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2    
     restart: always
     environment:
       - xpack.security.enabled=false
@@ -101,6 +108,16 @@ services:
       - 5601:5601
     depends_on:
       - elasticsearch
+
+  # Prometheus
+  prometheus:  
+    container_name: prometheus
+    image: prom/prometheus
+    restart: always    
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
                                  
 volumes:
   postgres-db:
