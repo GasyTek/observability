@@ -32,3 +32,11 @@ scrape_configs:
     static_configs:
       - targets: ['otel-collector:8889']
       - targets: ['otel-collector:8888']
+  - job_name: 'api-gateway'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['172.17.96.1:5000']  # The IP address corresponds to WSL network interface on windows
+  - job_name: 'product-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['172.17.96.1:5002']  # The IP address corresponds to WSL network interface on windows
