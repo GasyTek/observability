@@ -14,6 +14,8 @@ services:
       - '5432:5432'
     volumes: 
       - postgres-db:/var/lib/postgresql/data
+    networks:
+      - observability
 
   # Mongo DB
   mongo:
@@ -25,6 +27,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo
     volumes: 
       - mongo-db:/data/db
+    networks:
+      - observability
 
   # Mongo Express
   mongo-express:
@@ -37,6 +41,8 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: mongo
       ME_CONFIG_MONGODB_ADMINPASSWORD: mongo
       ME_CONFIG_MONGODB_URL: mongodb://mongo:mongo@mongo:27017/
+    networks:
+      - observability
   
   # OpenTelemetry collector
   otel-collector:
@@ -53,6 +59,8 @@ services:
       - 4317:4317 # OTLP gRPC receiver
       - 4318:4318 # OTLP http receiver
       - 55679:55679 # zpages extension
+    networks:
+      - observability
     depends_on:
       - jaeger
       - prometheus
@@ -66,6 +74,8 @@ services:
       - "16686:16686"
       - "14268"
       - "14250"
+    networks:
+      - observability
 
   # Redis
   redis:
@@ -74,40 +84,75 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    networks:
+      - observability
 
   # Elasticsearch
+  setup:
+    container_name: setup
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}    
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;        
+        echo "Setting kibana_system password";
+        until curl -s -X POST -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - observability
+
   elasticsearch:
-    container_name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2    
+    container_name: elasticsearch 
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     restart: always
-    environment:
-      - xpack.security.enabled=false
+    environment:      
       - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - node.name=elasticsearch
+    mem_limit: ${MEM_LIMIT}
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
+    healthcheck:
+        test: curl -u elastic:${ELASTIC_PASSWORD} -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+        interval: 30s
+        timeout: 10s
+        retries: 5
     volumes:
       - ./elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+    networks:
+      - observability
 
   # Kibana      
   kibana:
     container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.6.2
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     restart: always
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200    # address of elasticsearch docker container which kibana will connect
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
     ports:
       - 5601:5601
+    networks:
+      - observability
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
 
   # Prometheus
   prometheus:  
@@ -118,6 +163,8 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - observability
 
   # Grafana
   grafana:  
@@ -126,9 +173,16 @@ services:
     restart: always    
     ports:
       - 3000:3000
-                                       
+    networks:
+      - observability
+
 volumes:
   postgres-db:
     driver: local
   mongo-db:
     driver: local
+
+networks:
+  observability:
+    name: observability
+    driver: bridge
