@@ -23,6 +23,32 @@ Docker & Docker compose
     cd ./deployment
     docker compose up -d
 ```
+2. Open **Observability Workshop.sln** with Visual Studio
+3. Select multi-target run
 
 ## Notes :
-To access Kibana, use following credentials : elastic / elastic
+
+### Api Gateway 
+
+- http://localhost:5000/products
+- http://localhost:5000/products/{productId}
+
+### Jaeger
+
+- http://localhost:16686/search
+
+### Kibana
+
+- Endpôint: http://localhost:5601
+- Credentials: elastic / elastic
+
+### Mongo Express
+- http://localhost:8081/
+
+### Prometheus
+- http://localhost:9090/
+
+### Grafana
+- Endpoint: http://localhost:3000/
+- Credentials: admin / admin
+- Use http://prometheus:9090 as datasource URL for Prometheus
