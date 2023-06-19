@@ -40,6 +40,7 @@ builder.Services.AddOpenTelemetry()
                 return !httpContext.Request.Path.Equals("/metrics");
             })
             .AddRedisInstrumentation(redisConnection, options => options.SetVerboseDatabaseStatements = true)
+            .AddHttpClientInstrumentation()
             .AddConsoleExporter()
             .AddOtlpExporter())
     .WithMetrics(metricsProviderBuilder =>
@@ -47,6 +48,9 @@ builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource => resource
                 .AddService(DiagnosticsConfig.ServiceName))
             .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddProcessInstrumentation()
             .AddConsoleExporter()
             .AddOtlpExporter());
 

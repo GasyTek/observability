@@ -25,6 +25,7 @@ builder.Services.AddOpenTelemetry()
                 // only collect telemetry about all urls except /metrics
                 return !httpContext.Request.Path.Equals("/metrics");
             })
+            .AddHttpClientInstrumentation()
             .AddConsoleExporter()
             .AddOtlpExporter())
     .WithMetrics(metricsProviderBuilder =>
@@ -32,6 +33,9 @@ builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource => resource
                 .AddService(DiagnosticsConfig.ServiceName))
             .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddProcessInstrumentation()
             .AddConsoleExporter()
             .AddOtlpExporter());
 
