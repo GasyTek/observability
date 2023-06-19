@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GasyTek.ApiGateway", "GasyT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GasyTek.ProductService", "GasyTek.ProductService\GasyTek.ProductService.csproj", "{556B5505-ABC9-4411-BA94-35D46BF88700}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GasyTek.CartService", "GasyTek.CartService\GasyTek.CartService.csproj", "{34281457-81AB-49B1-8559-2CA06AC659DF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{C316DF16-FEF7-4B83-BAFD-EC4D3618B3EB}"
 EndProject
 Global
@@ -25,17 +23,12 @@ Global
 		{556B5505-ABC9-4411-BA94-35D46BF88700}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{556B5505-ABC9-4411-BA94-35D46BF88700}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{556B5505-ABC9-4411-BA94-35D46BF88700}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34281457-81AB-49B1-8559-2CA06AC659DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34281457-81AB-49B1-8559-2CA06AC659DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34281457-81AB-49B1-8559-2CA06AC659DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34281457-81AB-49B1-8559-2CA06AC659DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{556B5505-ABC9-4411-BA94-35D46BF88700} = {C316DF16-FEF7-4B83-BAFD-EC4D3618B3EB}
-		{34281457-81AB-49B1-8559-2CA06AC659DF} = {C316DF16-FEF7-4B83-BAFD-EC4D3618B3EB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99F10BB0-502E-46FA-BCE0-0F571C139589}
