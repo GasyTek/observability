@@ -11,23 +11,27 @@ namespace GasyTek.ProductService.Core
             var bytes = cache.Get(key);
             if (bytes == null || bytes.Length == 0)
             {
-                return default;
+                return default!;
             }
 
             try
             {
                 var strValue = Encoding.UTF8.GetString(bytes);
-                return JsonConvert.DeserializeObject<T>(strValue);
+                return JsonConvert.DeserializeObject<T>(strValue)!;
             }
             catch
             {
-                return default;
+                return default!;
             }
         }
 
-        public static void Set<T>(this IDistributedCache cache, string key, T value, DistributedCacheEntryOptions options = default)
+        public static void Set<T>(
+            this IDistributedCache cache,
+            string key, 
+            T value,
+            DistributedCacheEntryOptions? options = default)
         {
-            if(options is null)
+            if (options is null)
             {
                 options = new DistributedCacheEntryOptions
                 {

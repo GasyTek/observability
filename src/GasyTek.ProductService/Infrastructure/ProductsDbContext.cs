@@ -7,7 +7,7 @@ namespace GasyTek.ProductService.Infrastructure
 {
     public class ProductsDbContext : DbContext
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

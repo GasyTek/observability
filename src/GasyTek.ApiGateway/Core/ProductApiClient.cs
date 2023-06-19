@@ -14,34 +14,33 @@ namespace GasyTek.ApiGateway.Core
             this.httpClient = httpClient;
         }
 
-        public async Task<ProductData[]> GetProductListAsync()
+        public async Task<ProductData[]?> GetProductListAsync()
         {
-            using (var response = await this.httpClient.GetAsync($"{ProductServiceUrl}/products"))
+            using var response = await this.httpClient.GetAsync($"{ProductServiceUrl}/products");
+            if (response.IsSuccessStatusCode)
             {
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadFromJsonAsync<ProductData[]>();
-                }
-                else
-                {
-                    throw new Exception($"Call to Product Service failed with status {response.StatusCode}");
-                }
+                return await response.Content.ReadFromJsonAsync<ProductData[]>();
+            }
+            else
+            {
+                throw new Exception($"Call to Product Service failed with status {response.StatusCode}");
             }
         }
 
-        public async Task<ProductData> GetProductAsync(int id)
+        public async Task<ProductData?> GetProductAsync(int id)
         {
-            using (var response = await this.httpClient.GetAsync($"{ProductServiceUrl}/products/{id}"))
+            using var response = await this.httpClient.GetAsync($"{ProductServiceUrl}/products/{id}");
+
+            if (response.IsSuccessStatusCode)
             {
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadFromJsonAsync<ProductData>();
-                }
-                else
-                {
-                    return null;
-                }
-            };
+                return await response.Content.ReadFromJsonAsync<ProductData>();
+            }
+            else
+            {
+                return null;
+            }
+
+            ;
         }
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using GasyTek.ProductService.Domain;
 using StackExchange.Redis;
-using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,14 +59,6 @@ app.UseSwaggerUI();
 // Process to auto migration
 var dbContext = new ProductsDbContext();
 dbContext.Database.Migrate();
-
-/*
- * NOTE
- * Prometheus agent is enabled in addition to OpenTelemetry metrics because as of today,
- * OpenTelemetry metrics do not include Asp.Net / CLR metrics to prometheus. 
- * OpenTelemetry currently just expose one metric which is http duration but for sure, more will be added in the future.
- */
-app.MapMetrics();
 
 app.MapGet("/products", (ProductsDbContext dbContext) =>
 {

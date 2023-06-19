@@ -2,7 +2,6 @@ using GasyTek.ApiGateway.Core;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddHttpClient<ProductApiClient>()
-    .UseHttpClientMetrics();
+    .AddHttpClient<ProductApiClient>();
 
 // OpenTelemetry
 builder.Services.AddOpenTelemetry()
@@ -44,13 +42,6 @@ app.UseSwaggerUI();
 
 app.UseAuthorization();
 
-/*
- * NOTE
- * Prometheus agent is enabled in addition to OpenTelemetry metrics because as of today,
- * OpenTelemetry metrics do not include Asp.Net / CLR metrics to prometheus. 
- * OpenTelemetry currently just expose one metric which is http duration but for sure, more will be added in the future.
- */
-app.MapMetrics();
 app.MapControllers();
 
 app.Run();
