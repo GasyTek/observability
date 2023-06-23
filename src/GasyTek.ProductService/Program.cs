@@ -8,6 +8,7 @@ using OpenTelemetry.Metrics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using GasyTek.ProductService.Domain;
+using OpenTelemetry.Logs;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,17 @@ builder.Services.AddOpenTelemetry()
             .AddConsoleExporter()
             .AddOtlpExporter());
 
+// Configure OpenTelemetry Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddOpenTelemetry(opt =>
+{
+    var resourceBuilder = ResourceBuilder.CreateDefault();
+    resourceBuilder.AddService(DiagnosticsConfig.ServiceName);
+    opt.SetResourceBuilder(resourceBuilder);
+    opt.AddOtlpExporter();
+    opt.AddConsoleExporter();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,32 +73,45 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 // Process to auto migration
-var dbContext = new ProductsDbContext();
-dbContext.Database.Migrate();
+MigrateDatabase();
 
-app.MapGet("/products", (ProductsDbContext dbContext) =>
+app.MapGet("/products", ([FromServices]ProductsDbContext dbContext, [FromServices]ILoggerFactory loggerFactory) =>
 {
+    var logger = loggerFactory.CreateLogger("ProductList");
+    logger.Log(LogLevel.Information, "Get products list from ProductService");
     return dbContext.Products.ToListAsync();
 });
 
-app.MapGet("/products/{id:int}", object ([FromRoute] int id, [FromServices] ProductsDbContext dbContext, [FromServices] IDistributedCache cache) =>
+app.MapGet("/products/{id:int}", object (
+    [FromRoute] int id,
+    [FromServices] ProductsDbContext dbContext,
+    [FromServices] IDistributedCache cache,
+    [FromServices] ILogger logger) =>
+{
+    logger.Log(LogLevel.Information, "Get single product from ProductService");
+
+    var cacheKey = $"Product:{id}";
+    var product = cache.Get<Product>(cacheKey);
+    if (product is null)
     {
-        var cacheKey = $"Product:{id}";
-        var product = cache.Get<Product>(cacheKey);
-        if (product is null)
-        {
-            // Retrieve product from DB
-            product = dbContext.Products.SingleOrDefault(it => it.Id == id);
+        // Retrieve product from DB
+        product = dbContext.Products.SingleOrDefault(it => it.Id == id);
 
-            // Add product into cache
-            cache.Set(cacheKey, product);
+        // Add product into cache
+        cache.Set(cacheKey, product);
 
-            return product is null ? Results.NotFound() : product;
-        }
-        else
-        {
-            return product;
-        }
-    });
+        return product is null ? Results.NotFound() : product;
+    }
+    else
+    {
+        return product;
+    }
+});
 
 app.Run();
+
+static void MigrateDatabase()
+{
+    var dbContext = new ProductsDbContext();
+    dbContext.Database.Migrate();
+}

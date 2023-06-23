@@ -1,4 +1,5 @@
 using GasyTek.ApiGateway.Core;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -14,7 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services
     .AddHttpClient<ProductApiClient>();
 
-// OpenTelemetry
+// Configure OpenTelemetry Tracing & Metrics
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
         tracerProviderBuilder
@@ -30,14 +31,24 @@ builder.Services.AddOpenTelemetry()
             .AddOtlpExporter())
     .WithMetrics(metricsProviderBuilder =>
         metricsProviderBuilder
-            .ConfigureResource(resource => resource
-                .AddService(DiagnosticsConfig.ServiceName))
+            .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation()
             .AddProcessInstrumentation()
             .AddConsoleExporter()
             .AddOtlpExporter());
+
+// Configure OpenTelemetry Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddOpenTelemetry(opt =>
+{
+    var resourceBuilder = ResourceBuilder.CreateDefault();
+    resourceBuilder.AddService(DiagnosticsConfig.ServiceName);
+    opt.SetResourceBuilder(resourceBuilder);
+    opt.AddOtlpExporter();
+    opt.AddConsoleExporter();
+});
 
 var app = builder.Build();
 
