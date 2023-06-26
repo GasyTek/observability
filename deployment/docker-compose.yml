@@ -154,6 +154,19 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+   
+  # Elastic APM Server
+  elastic-apm:
+    container_name: elastic-apm
+    image: docker.elastic.co/apm/apm-server:${STACK_VERSION}
+    restart: always
+    ports:
+      - 8200:8200
+    networks:
+      - observability
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
 
   # Prometheus
   prometheus:  

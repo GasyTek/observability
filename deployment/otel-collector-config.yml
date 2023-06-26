@@ -12,6 +12,8 @@ exporters:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
+  otlp/elastic:     
+    endpoint: "elastic-apm:8200"
 processors:
   batch:
 service:
@@ -19,12 +21,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, jaeger]      
+      exporters: [logging, otlp/elastic, jaeger]      
     metrics:
       receivers: [otlp]      
       processors: [batch]
-      exporters: [logging, prometheus]
+      exporters: [logging, otlp/elastic, prometheus]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [logging, otlp/elastic]
