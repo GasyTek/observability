@@ -86,8 +86,9 @@ app.MapGet("/products/{id:int}", object (
     [FromRoute] int id,
     [FromServices] ProductsDbContext dbContext,
     [FromServices] IDistributedCache cache,
-    [FromServices] ILogger logger) =>
+    [FromServices]ILoggerFactory loggerFactory) =>
 {
+    var logger = loggerFactory.CreateLogger("Product");
     logger.Log(LogLevel.Information, "Get single product from ProductService");
 
     var cacheKey = $"Product:{id}";

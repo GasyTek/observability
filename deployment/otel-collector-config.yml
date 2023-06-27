@@ -5,15 +5,18 @@ receivers:
       grpc:
 exporters: 
   logging:
-    verbosity: normal  
+    verbosity: normal
   jaeger:
     endpoint: jaeger:14250
     tls:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
-  otlp/elastic:     
-    endpoint: "elastic-apm:8200"
+  otlphttp/elastic:
+    endpoint: "http://elastic-apm:8200"
+    compression: none
+    tls:
+      insecure: true
 processors:
   batch:
 service:
@@ -21,12 +24,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, otlp/elastic, jaeger]      
+      exporters: [jaeger, otlphttp/elastic]
     metrics:
       receivers: [otlp]      
       processors: [batch]
-      exporters: [logging, otlp/elastic, prometheus]
+      exporters: [prometheus, otlphttp/elastic]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, otlp/elastic]
+      exporters: [logging, otlphttp/elastic]

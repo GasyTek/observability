@@ -167,6 +167,8 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    volumes:
+      - ./apm-server.yml:/usr/share/apm-server/apm-server.yml:ro
 
   # Prometheus
   prometheus:  
