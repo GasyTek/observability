@@ -23,8 +23,9 @@ Docker & Docker compose
     cd ./deployment
     docker compose up -d
 ```
-2. Open **Observability Workshop.sln** with Visual Studio
-3. Select multi-target run
+2. Once every containers are up and running, configure Elastic APM on Kibana by following instructions described [here](https://www.elastic.co/guide/en/apm/guide/current/apm-server-configuration.html)
+3. Open **Observability Workshop.sln** using your favorite IDE (e.g Visual Studio or Rider)
+3. Run both contained project in parallel.
 
 ## Notes :
 
